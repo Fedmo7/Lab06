@@ -29,3 +29,26 @@ class Controller:
 
     # Altre Funzioni Event Handler
     # TODO
+    def mostra_automobili(self,e):
+        automobili= self._model.get_automobili()
+
+        if not automobili:
+            self._view.show_alert("Nessun Automobile trovata nel database")
+        else:
+            for auto in automobili:
+                self._view.lista_auto.controls.append(ft.Text(str(auto)))
+        self._view.update()
+    def cerca_automobili(self,e):
+        modello=self._view.input_modello_auto.value.strip()
+        if not modello:
+            self._view.show_alert("Inserisci un modello da cercare")
+            return
+        automobili=self._model.cerca_automobili_per_modello(modello)
+
+        self._view.lista_auto_ricerca.controls.clear()
+        if not automobili:
+            self._view.show_alert(f"Nessun Automobile trovata per modello: {modello}")
+        else:
+            for auto in automobili:
+                self._view.lista_auto_ricerca.controls.append(ft.Text(str(auto)))
+        self._view.update()

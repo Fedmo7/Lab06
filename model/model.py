@@ -1,6 +1,7 @@
 from database.DB_connect import get_connection
 from model.automobile import Automobile
 from model.noleggio import Noleggio
+import mysql.connector
 
 '''
     MODELLO: 
@@ -34,7 +35,31 @@ class Autonoleggio:
         """
             Funzione che legge tutte le automobili nel database
             :return: una lista con tutte le automobili presenti oppure None
+
+
         """
+        try:
+            cnx = get_connection()
+            if not cnx:
+                return None
+            cursor = cnx.cursor()
+            query= "SELECT codice, marca, modello, anno, posti, disponibile FROM automobile"
+            cursor.execute(query)
+            automobili = []
+            for (codice, marca, modello, anno, posti, disponibile) in cursor:
+                auto=Automobile(codice, marca, modello, anno, posti, bool(disponibile))
+                automobili.append(auto)
+            cursor.close()
+            cnx.close()
+            return automobili if automobili else None
+        except mysql.connector.Error as err:
+            print(f'Errore durante la lettura delle automobili: {err}')
+            return None
+
+
+
+
+
 
         # TODO
 
@@ -45,3 +70,24 @@ class Autonoleggio:
             :return: una lista con tutte le automobili di marca e modello indicato oppure None
         """
         # TODO
+        try:
+            cnx = get_connection()
+            if not cnx:
+                return None
+            cursor = cnx.cursor()
+            query="""
+            SELECT codice, marca, modello, anno, posti, disponibile
+            FROM automobile
+            WHERE modello LIKE %s 
+            """
+            cursor.execute(query, (f"%{modello}%",))
+            automobili = []
+            for (codice,marca,modello,anno,posti,disponibile) in cursor:
+                auto=Automobile(codice, marca, modello, anno, posti, bool(disponibile))
+                automobili.append(auto)
+            cursor.close()
+            cnx.close()
+            return automobili if automobili else None
+        except mysql.connector.Error as err:
+            print(f"Errore durante la ricerca: {err}")
+            return None
